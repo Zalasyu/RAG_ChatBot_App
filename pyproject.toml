@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "localclubhouse"
+version = "0.1.0"
+description = "POC to deploy an AI agent with Langchain and a llm model."
+authors = ["Alec Sebastian Moldovan"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+huggingface-hub = "^0.24.6"
+transformers = "^4.44.2"
+faiss-cpu = "^1.8.0.post1"
+flask = "^3.0.3"
+flask-cors = "^5.0.0"
+sentence-transformers = "^3.1.0"
+accelerate = "^0.34.2"
+bitsandbytes = "^0.43.3"
+beautifulsoup4 = "^4.12.3"
+requests = "^2.32.3"
+langchain-community = "^0.3.0"
+lxml = "^5.3.0"
+langchain-huggingface = "^0.1.0"
+torch = "^2.4.1"
+langsmith = "^0.1.121"
+python-dotenv = "^1.0.1"
+
+
+[tool.poetry.group.dev.dependencies]
+isort = "^5.13.2"
+pytest = "^8.3.3"
+black = "^24.8.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
