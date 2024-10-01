@@ -23,6 +23,12 @@ langchain-huggingface = "^0.1.0"
 torch = "^2.4.1"
 langsmith = "^0.1.121"
 python-dotenv = "^1.0.1"
+langchain-chroma = "^0.1.4"
+optimum = "^1.22.0"
+timm = "^1.0.9"
+peft = "^0.13.0"
+torchvision = "^0.19.1"
+airllm = "^2.11.0"
 
 
 [tool.poetry.group.dev.dependencies]

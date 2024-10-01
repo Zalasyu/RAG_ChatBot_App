@@ -15,7 +15,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain.memory import ConversationBufferMemory
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 from langchain_huggingface import HuggingFacePipeline
 from transformers import (
     AutoModelForCausalLM,
@@ -23,8 +23,12 @@ from transformers import (
     BitsAndBytesConfig,
     pipeline,
 )
+from accelerate import init_empty_weights, load_checkpoint_and_dispatch, infer_auto_device_map
+from airllm import AutoModel
 
-from huggingface_hub import login
+from huggingface_hub import login, hf_hub_download
+
+from vector_store import VectorStore
 
 load_dotenv()  # Load environment variables from .env file
 
@@ -45,16 +49,14 @@ class LLMIntegrator:
         device (torch.device): The device (CPU/GPU) on which the model is loaded.
     """
 
-    def __init__(self, vector_store: Any, model_name: str = "mistralai/Mistral-7B-v0.1" ):
+    def __init__(self, model_name: str = "openbmb/MiniCPM-V-2_6-int4"):
         """Initialize the LLMIntegrator
 
         Args:
-            model_name (str, optional): The name of the pre-trained model to use. Defaults to 'gpt2'.
+            model_name (str, optional): The name of the pre-trained model to use.
         """
 
-        self.vector_store = vector_store
-
-        self.tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left")
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name, padding_side="left", trust_remote_code=True)
         self.tokenizer.clean_up_tokenization_spaces = True
         self.tokenizer.pad_token = self.tokenizer.eos_token
 
@@ -62,10 +64,17 @@ class LLMIntegrator:
         quantization_config = BitsAndBytesConfig(
             load_in_4bit=True, bnb_4bit_compute_dtype=torch.float16
         )
+        
+        with init_empty_weights():
+            self.model = AutoModel.from_pretrained(
+                model_name)
 
-        self.model = AutoModelForCausalLM.from_pretrained(
-            model_name, quantization_config=quantization_config, device_map="auto"
-        )
+        # Infer a device map base don available memory
+        device_map = infer_auto_device_map(self.model, max_memory={0: "5GB", "cpu": "8GB"})
+
+        # Load the model and dispatch it according to the inferred device map
+        self.model = load_checkpoint_and_dispatch(self.model, model_name, device_map, offload_folder="offload")
+
 
         # Create a HuggingFacePipeline
         pipe = pipeline(
@@ -100,11 +109,9 @@ class LLMIntegrator:
         Context:{context}
         Question: {question}
         Answer: """
-        self.prompt = PromptTemplate.from_template(
-            template=template, input_variables=["context", "question"]
-        )
+        self.prompt = ChatPromptTemplate.from_template(template)
 
-    def setup_retriaval_qa(self, vector_store: Any) -> None:
+    def setup_retriaval_qa(self, retriever: Any) -> None:
         """Set up the retrieval QA Chain.
 
         Args:
@@ -114,14 +121,16 @@ class LLMIntegrator:
         # Create the RunnableSequence
         self.qa_chain = (
             {
-                "context": vector_store.as_retriever(seatch_kwargs={"k": 3}),
+                "context": retriever,
                 "question": RunnablePassthrough(),
             }
             | self.prompt
             | self.llm
             | StrOutputParser()
         )
-    @traceable()
+
+
+    # @traceable()
     def answer_question(self, question: str) -> Dict[str, Any]:
         """Generate an answer to a question given some context
 
@@ -133,17 +142,17 @@ class LLMIntegrator:
             Dict[str, Any]: A dictionary containing the answer and confidence score.
         """
         response = self.qa_chain.invoke(question)
+        torch.cuda.empty_cache()  # Clear cache to free memory
 
-        # TODO: Implement a method to calculate the confidence score
-        confidence_score = 0.8  # Placeholder
-
-        return {"answer": response, "confidence_score": confidence_score}
+        return {"answer": response}
 
 
 if __name__ == "__main__":
-    llm = LLMIntegrator("mistralai/Mistral-7B-v0.1")
+    llm = LLMIntegrator()
+    vector_store_instance = VectorStore("https://traviscountyappliancerepair.com")
+    retriever_instance = vector_store_instance.load_retriever()
+    llm.setup_retriaval_qa(retriever=retriever_instance)
     result = llm.answer_question(
-        "What is Python?",
-        "Python is a high-level programming language. It is used for making apps",
+        "How can I fix a Samsung dryer?"
     )
     print(f"The result: {result}")

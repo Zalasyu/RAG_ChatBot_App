@@ -1,0 +1,4 @@
+chroma_db/
+chroma_df_filestore/
+.env
+store_location/
