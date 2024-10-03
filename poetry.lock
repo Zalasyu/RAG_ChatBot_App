@@ -168,27 +168,6 @@ files = [
 frozenlist = ">=1.1.0"
 
 [[package]]
-name = "airllm"
-version = "2.11.0"
-description = "AirLLM allows single 4GB GPU card to run 70B large language models without quantization, distillation or pruning. 8GB vmem to run 405B Llama3.1."
-optional = false
-python-versions = "*"
-files = [
-    {file = "airllm-2.11.0-py3-none-any.whl", hash = "sha256:668c8424c8f72151cfbecc0892a9cd3c8bd792dceb977683c93a318240a248a2"},
-    {file = "airllm-2.11.0.tar.gz", hash = "sha256:62fbd17de01d64ce667e72291fa8642bf5ce20c68ff1ca835b9d1d2ed371856d"},
-]
-
-[package.dependencies]
-accelerate = "*"
-huggingface-hub = "*"
-optimum = "*"
-safetensors = "*"
-scipy = "*"
-torch = "*"
-tqdm = "*"
-transformers = "*"
-
-[[package]]
 name = "annotated-types"
 version = "0.7.0"
 description = "Reusable constraint types to use with typing.Annotated"
@@ -5237,4 +5216,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "f443e01552d4986c6a05919e92ca9666cd8e7b1c5869e107d6ca51aa43f7c74d"
+content-hash = "26b02f520940b07f0d543c0e6f28a50d365faeb7ab78f2b2a647e553dd6c20d5"

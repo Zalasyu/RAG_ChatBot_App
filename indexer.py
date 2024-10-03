@@ -35,7 +35,11 @@ class WordPressScraperIndexer:
         """
 
         self.base_url = base_url
-        self.embeddings = HuggingFaceBgeEmbeddings(model_name=model_name, model_kwargs = {"device": "cpu"}, encode_kwargs = {"normalize_embeddings": True})
+        self.embeddings = HuggingFaceBgeEmbeddings(
+            model_name=model_name,
+            model_kwargs={"device": "cpu"},
+            encode_kwargs={"normalize_embeddings": True},
+        )
         self.vector_store = None
 
     def create_sitemap_url(self, base_url: str) -> str:
@@ -148,8 +152,7 @@ class WordPressScraperIndexer:
 
         # Split documents
         text_splitter = RecursiveCharacterTextSplitter.from_language(
-            language=Language.HTML,
-            chunk_size=1250, chunk_overlap=500
+            language=Language.HTML, chunk_size=1250, chunk_overlap=500
         )
         return text_splitter.split_documents(docs)
 
@@ -252,6 +255,6 @@ class WordPressScraperIndexer:
 if __name__ == "__main__":
     scraper_indexer = WordPressScraperIndexer("https://traviscountyappliancerepair.com")
     scraper_indexer.scrape_n_index()
-    scraper_indexer.save_index('wordpress_index')
+    scraper_indexer.save_index("wordpress_index")
     results = scraper_indexer.search("How to repair dryer?")
     print(results)
