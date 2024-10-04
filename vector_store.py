@@ -19,7 +19,6 @@ from langchain.document_transformers import BeautifulSoupTransformer
 from langchain.text_splitter import RecursiveCharacterTextSplitter, Language
 from langchain.embeddings import HuggingFaceBgeEmbeddings
 from langchain.retrievers import ParentDocumentRetriever
-from langchain.storage import InMemoryStore
 from langchain_community.document_transformers import LongContextReorder
 from langchain_chroma import Chroma
 from langchain.storage._lc_store import create_kv_docstore
@@ -65,8 +64,8 @@ class VectorStore:
 
         # This text splitter is used to create the parent documents
         self.parent_splitter = RecursiveCharacterTextSplitter.from_language(
-            chunk_size=2048,
-            chunk_overlap=512,
+            chunk_size=4096,
+            chunk_overlap=1024,
             add_start_index=True,
             language=Language.HTML,
         )

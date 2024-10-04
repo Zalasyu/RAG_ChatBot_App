@@ -155,11 +155,10 @@ class LLMIntegrator:
                 "context": retrieved_docs | docs_to_text_with_sources,
                 "question": RunnablePassthrough(),
             }
-            | Runn
             | self.prompt
             | print_prompt
             | self.llm
-            | LLMOutputParser
+            | StrOutputParser()
         )
 
 
