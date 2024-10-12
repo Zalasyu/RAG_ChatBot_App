@@ -27,8 +27,8 @@ from typing import Any, Dict
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
-from .indexer import WordPressScraperIndexer
-from .llm_model import LLMIntegrator
+from vector_store import VectorStore
+from llm_model import LLMIntegrator
 
 # Constant Variables
 # WORDPRESS_URL = 'https://localclubhouse.com'
@@ -40,10 +40,11 @@ CORS(app=app)  # Enable CORS for all routes during DEV
 
 
 # Initialize Content Indexer
-scraper_indexer = WordPressScraperIndexer(WORDPRESS_URL)
+vector_store_instance = VectorStore(WORDPRESS_URL)
 
 # Initialize the LLM Integrator
 llm = LLMIntegrator()
+llm.setup_retriaval_qa(retriever=vector_store_instance)
 
 
 @app.route("/chat", methods=["POST"])
@@ -70,21 +71,16 @@ def chat() -> Dict[str, Any]:
     query: str = data["query"]
 
     try:
-        # Perform Similarity Search to find relevant context
-        search_results = scraper_indexer.search(query, k=20)
-
-        # Prepare context for the LLM
-        context: str = "\n".join([result["content"] for result in search_results])
 
         # Use the LLM to generate an answer
-        llm_result: Dict[str, Any] = llm.answer_question(query, context)
+        llm_result: Dict[str, Any] = llm.answer_question(query)
 
-        print(llm_result)
+        print(f"Here is the result: {llm_result}")
+
 
         # Prepare the response
         response = {
-            "answer": llm_result["answer"],
-            "confidence": llm_result["confidence_score"],
+            "answer": llm_result['answer'],
         }
 
         return jsonify(response)
@@ -101,8 +97,7 @@ def refresh_index() -> Dict[str, str]:
         Dict[str, str]: A dictionary containing a success message or error message.
     """
     try:
-        scraper_indexer.scrape_n_index()
-        scraper_indexer.save_index(INDEX_PATH)
+        vector_store.scrape_n_index()
         return jsonify({"message": "Content index refreshed successfully"})
     except Exception as e:
         return jsonify({"error": f"Failed to refresh index: {str(e)}"}), 500

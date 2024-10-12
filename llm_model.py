@@ -4,11 +4,9 @@ Module for integrating a Large Language Model (LLM) into the chatbot.
 This module provides functionality to load and use a pre-trained language
 model for generating responses in the chatbot application.
 """
-import getpass
 import os
 from typing import Any, Dict
 from regex import D
-from typing_extensions import Annotated, TypedDict
 
 import torch
 from dotenv import load_dotenv, find_dotenv
@@ -24,7 +22,6 @@ from transformers import (
     AutoTokenizer,
     BitsAndBytesConfig,
     pipeline,
-    AutoConfig,
 )
 from accelerate import infer_auto_device_map
 

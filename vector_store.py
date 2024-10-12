@@ -52,7 +52,7 @@ class VectorStore:
         self.base_url = base_url
         self.embeddings = HuggingFaceBgeEmbeddings(
             model_name=model_name,
-            model_kwargs={"device": device},
+            model_kwargs={"device": "cpu"},
             encode_kwargs={"normalize_embeddings": True}
         )
         self.vector_store = Chroma(

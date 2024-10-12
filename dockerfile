@@ -48,12 +48,19 @@ RUN update-alternatives --install /usr/bin/python3 python3 $PYTHON_ROOT/bin/pyth
 # Verify Python installation
 RUN python3 --version && pip3 --version
 
+# Install PyTorch first
+RUN pip3 install --upgrade pip
+RUN pip3 install torch
+
 # Install project dependencies
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 # Copy project files
 COPY . .
+
+# Expose the port that the app will run on
+EXPOSE 5000
 
 # Run the application
 CMD ["python3", "app.py"]
