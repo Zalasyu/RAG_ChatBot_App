@@ -76,7 +76,7 @@ class LLMIntegrator:
 
         # Infer a device map base don available memory
         device_map = infer_auto_device_map(
-            self.model, max_memory={0: "5GB", "cpu": "5GB"}
+            self.model, max_memory={0: "4GB", "cpu": "6GB"}
         )
         print(device_map)
 
@@ -118,6 +118,7 @@ class LLMIntegrator:
         )
 
 
+    # TODO: Determine why LLM model does not consider context when generating answer.
     @traceable(run_type="chain")
     def setup_retriaval_qa(self, retriever: Any) -> None:
         """Set up the retrieval QA Chain.

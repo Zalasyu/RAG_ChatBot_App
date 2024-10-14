@@ -303,6 +303,7 @@ class VectorStore:
         return reordered_docs
     
 
+    # TODO: Determine why it keeps returning only 4 documents when I specified 10.
     @traceable(run_type="retriever", name="search", project_name="RAG-CHATBOT")
     def search(self, query: str, k: int = 10) -> List[Dict[str, Any]]:
         """Search the indexed content for relevant info.
